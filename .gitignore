@@ -1,0 +1,8 @@
+# ignore backend file
+/ backend /
+
+# ignore .env files 
+.env
+
+#Ignore File Contih
+contoh.html
