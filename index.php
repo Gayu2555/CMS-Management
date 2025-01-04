@@ -253,8 +253,8 @@ require 'backend/get_category.php';
                 // Get form values
                 const title = document.getElementById('title').value;
                 const author = document.getElementById('author').value;
-                const date = document.getElementById('date_created').value;
-                const content = document.getElementById('editor').innerHTML;
+                const date = document.getElementById('date_created').value; // If date_created exists in the form
+                const content = document.getElementById('editor').innerHTML; // Editor content
                 const imageFile = document.getElementById('image').files[0];
                 const caption = document.getElementById('figcaption').value;
 
@@ -279,6 +279,8 @@ require 'backend/get_category.php';
                         }
                     };
                     reader.readAsDataURL(imageFile);
+                } else {
+                    imageContainer.classList.add('hidden'); // Hide the image container if no image is selected
                 }
 
                 // Show modal
