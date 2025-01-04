@@ -3,9 +3,9 @@
 class Database
 {
     private $host = 'localhost';
-    private $db_name = 'field_reporter';
+    private $db_name = '*****';
     private $username = 'root';
-    private $password = 'Gayu251005777';
+    private $password = '*****';
     private $conn;
 
     public function getConnection()
