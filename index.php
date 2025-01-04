@@ -39,7 +39,6 @@ require 'backend/get_category.php';
 
     <!-- Main Content -->
     <div class="ml-64 p-8">
-        <!-- Header -->
         <div class="flex justify-between items-center mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Tulis Artikel Baru</h1>
@@ -98,6 +97,16 @@ require 'backend/get_category.php';
                             <?php endforeach; ?>
                         </select>
                     </div>
+                </div>
+
+                <div class="mt-6">
+                    <label for="position" class="block text-sm font-medium text-gray-700 mb-2">Posisi Artikel</label>
+                    <select name="position" id="position" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Pilih Posisi</option>
+                        <option value="news_list">News List</option>
+                        <option value="sub_headline">Sub Headline</option>
+                        <option value="headline">Headline</option>
+                    </select>
                 </div>
 
                 <!-- Custom Toolbar -->

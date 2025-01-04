@@ -53,7 +53,7 @@ try {
     $pdo = connectDB();
 
     // Validate required fields
-    $required_fields = ['title', 'date_created', 'content', 'author', 'category'];
+    $required_fields = ['title', 'date_created', 'content', 'author', 'category', 'position'];
     foreach ($required_fields as $field) {
         if (!isset($_POST[$field]) || empty($_POST[$field])) {
             throw new Exception("Field '$field' harus diisi");
@@ -64,6 +64,13 @@ try {
     $title = sanitizeString($_POST['title']);
     $baseSlug = generateSlug($title);
     $category = sanitizeString($_POST['category']);
+    $position = sanitizeString($_POST['position']);
+
+    // Validate position value
+    $valid_positions = ['news_list', 'sub_headline', 'headline'];
+    if (!in_array($position, $valid_positions)) {
+        throw new Exception('Posisi artikel tidak valid');
+    }
 
     // Generate unique slug
     $slug = generateUniqueSlug($pdo, $category, $baseSlug);
@@ -129,42 +136,74 @@ try {
     }
     $description = substr(trim($plain_text), 0, 200) . '...';
 
-    // Prepare article data
-    $article_data = json_encode([
-        'title' => $title,
-        'slug' => $slug,
-        'date_published' => $date_published,
-        'content' => $content,
-        'image_url' => $image_url,
-        'figcaption' => $figcaption,  // Memasukkan figcaption ke dalam JSON
-        'description' => $description,
-        'author_name' => $author_name
-    ]);
+    // Start transaction
+    $pdo->beginTransaction();
 
-    // Menambahkan figcaption ke dalam query SQL
-    $sql = "INSERT INTO $category (title, slug, date_published, content, image_url, description, author_name, figcaption) 
-            VALUES (:title, :slug, :date_published, :content, :image_url, :description, :author_name, :figcaption)";
+    try {
+        // Prepare article data
+        $article_data = json_encode([
+            'title' => $title,
+            'slug' => $slug,
+            'date_published' => $date_published,
+            'content' => $content,
+            'image_url' => $image_url,
+            'figcaption' => $figcaption,
+            'description' => $description,
+            'author_name' => $author_name
+        ]);
 
-    $stmt = $pdo->prepare($sql);
-    $success = $stmt->execute([
-        ':title' => $title,
-        ':slug' => $slug,
-        ':date_published' => $date_published,
-        ':content' => $article_data,
-        ':image_url' => $image_url,
-        ':description' => $description,
-        ':author_name' => $author_name,
-        ':figcaption' => $figcaption
-    ]);
+        // Insert article
+        $sql = "INSERT INTO $category (title, slug, date_published, content, image_url, description, author_name, figcaption) 
+                VALUES (:title, :slug, :date_published, :content, :image_url, :description, :author_name, :figcaption)";
 
-    if (!$success) {
-        throw new Exception('Gagal menyimpan artikel ke database');
+        $stmt = $pdo->prepare($sql);
+        $success = $stmt->execute([
+            ':title' => $title,
+            ':slug' => $slug,
+            ':date_published' => $date_published,
+            ':content' => $article_data,
+            ':image_url' => $image_url,
+            ':description' => $description,
+            ':author_name' => $author_name,
+            ':figcaption' => $figcaption
+        ]);
+
+        if (!$success) {
+            throw new Exception('Gagal menyimpan artikel ke database');
+        }
+
+        // Get the new article's ID
+        $article_id = $pdo->lastInsertId();
+
+        // Get category_id from categories table
+        $stmt = $pdo->prepare("SELECT id FROM categories WHERE TABLE_NAME = ?");
+        $stmt->execute([$category]);
+        $category_id = $stmt->fetchColumn();
+
+        if (!$category_id) {
+            throw new Exception('Kategori tidak ditemukan');
+        }
+
+        // Insert position data
+        $stmt = $pdo->prepare("INSERT INTO article_positions (category_id, article_id, position) VALUES (?, ?, ?)");
+        $success = $stmt->execute([$category_id, $article_id, $position]);
+
+        if (!$success) {
+            throw new Exception('Gagal menyimpan posisi artikel');
+        }
+
+        // Commit transaction
+        $pdo->commit();
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Artikel berhasil dipublikasikan.'
+        ]);
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        $pdo->rollBack();
+        throw $e;
     }
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Artikel berhasil dipublikasikan.'
-    ]);
 } catch (Exception $e) {
     handleError($e->getMessage());
 }
