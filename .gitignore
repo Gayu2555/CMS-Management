@@ -1,8 +1,16 @@
 # ignore backend file
-/ backend /
+backend /
 
 # ignore .env files 
 .env
 
 #Ignore File Contih
 contoh.html
+
+node_modules/
+
+.gitignore
+package.json
+tailwind.config.js
+src/
+backend/
