@@ -30,7 +30,7 @@ require 'backend/get_category.php';
                 <i class="fas fa-newspaper mr-3"></i>
                 Semua Artikel
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700">
+            <a href="category.php" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700">
                 <i class="fas fa-folder mr-3"></i>
                 Kategori
             </a>
