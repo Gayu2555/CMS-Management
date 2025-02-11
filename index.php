@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CikarangTimes Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="src/output.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
@@ -16,80 +16,104 @@ require 'backend/get_category.php';
 
 <body class="bg-gray-100">
     <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 w-64 bg-gray-800 text-white transition-transform duration-300 transform">
-        <div class="p-6">
-            <h2 class="text-2xl font-bold">CikarangTimes</h2>
-            <p class="text-sm text-gray-400">Sistem Manajemen Konten</p>
+    <div class="fixed inset-y-0 left-0 w-64 bg-gray-900 text-white shadow-xl">
+        <div class="p-6 border-b border-gray-800">
+            <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">Urbansiana - CMS</h2>
+            <p class="text-sm text-gray-400 mt-1">Sistem Manajemen Konten</p>
         </div>
-        <nav class="mt-6">
-            <a href="#" class="flex items-center px-6 py-3 text-gray-100 bg-gray-700">
-                <i class="fas fa-pen-to-square mr-3"></i>
-                Tulis Berita
+        <nav class="mt-6 space-y-2 px-3">
+            <a href="#" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
+                <i class="fas fa-pen-to-square mr-3 text-gray-400 group-hover:text-blue-400"></i>
+                Kategori
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700">
-                <i class="fas fa-newspaper mr-3"></i>
+            <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <i class="fas fa-newspaper mr-3 text-gray-400 group-hover:text-blue-400"></i>
                 Semua Artikel
             </a>
-            <a href="category.php" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700">
-                <i class="fas fa-folder mr-3"></i>
+            <a href="index.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <i class="fas fa-folder mr-3 text-blue-400"></i>
                 Kategori
+            </a>
+            <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <i class="fa-regular fa-list mr-3 text-gray-400 group-hover:text-blue-400"></i>
+                Daftar Artikel
             </a>
         </nav>
     </div>
 
+
     <!-- Main Content -->
-    <div class="ml-64 p-8">
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Tulis Artikel Baru</h1>
-                <p class="text-gray-600">Buat dan publikasikan artikel berita Anda</p>
+    <div class="ml-16 lg:ml-64 p-4 lg:p-8">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 lg:mb-8">
+            <div class="mb-4 lg:mb-0">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900">Tulis Artikel Baru</h1>
+                <p class="text-gray-600 mt-1">Buat dan publikasikan artikel berita Anda</p>
             </div>
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-600">Selamat datang, Admin</span>
-                <img src="https://via.placeholder.com/32" alt="Admin" class="w-8 h-8 rounded-full">
+            <div class="flex items-center gap-3">
+                <span class="text-gray-700">Selamat datang, Admin</span>
+                <img src="https://via.placeholder.com/32" alt="Admin" class="w-8 h-8 rounded-full ring-2 ring-gray-200">
             </div>
         </div>
 
-        <!-- Form Content -->
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <!-- Main Form Container -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <!-- Alert Messages -->
             <?php if (isset($error)): ?>
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong class="font-bold">Error!</strong>
-                    <span class="block sm:inline"><?php echo $error; ?></span>
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6" role="alert">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700"><?php echo $error; ?></p>
+                        </div>
+                    </div>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($success)): ?>
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong class="font-bold">Sukses!</strong>
-                    <span class="block sm:inline"><?php echo $success; ?></span>
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6" role="alert">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700"><?php echo $success; ?></p>
+                        </div>
+                    </div>
                 </div>
             <?php endif; ?>
 
+            <!-- Article Form -->
             <form method="POST" action="backend/process.php" enctype="multipart/form-data" id="articleForm" class="space-y-6">
-                <!-- Article Info Section -->
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Judul Artikel</label>
+                <!-- Article Info Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label for="title" class="block text-sm font-medium text-gray-700">Judul Artikel</label>
                         <input type="text" name="title" id="title" required
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     </div>
-                    <div>
-                        <label for="author" class="block text-sm font-medium text-gray-700 mb-2">Penulis</label>
+                    <div class="space-y-2">
+                        <label for="author" class="block text-sm font-medium text-gray-700">Penulis</label>
                         <input type="text" name="author" id="author" required
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label for="date_created" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Publikasi</label>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label for="date_created" class="block text-sm font-medium text-gray-700">Tanggal Publikasi</label>
                         <input type="date" name="date_created" id="date_created" required
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     </div>
-                    <div>
-                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                        <select name="category" id="category" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <div class="space-y-2">
+                        <label for="category" class="block text-sm font-medium text-gray-700">Kategori</label>
+                        <select name="category" id="category" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?php echo htmlspecialchars($category['TABLE_NAME']); ?>">
                                     <?php echo ucfirst($category['TABLE_NAME']); ?>
@@ -99,9 +123,11 @@ require 'backend/get_category.php';
                     </div>
                 </div>
 
-                <div class="mt-6">
-                    <label for="position" class="block text-sm font-medium text-gray-700 mb-2">Posisi Artikel</label>
-                    <select name="position" id="position" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <!-- Position Selection -->
+                <div class="space-y-2">
+                    <label for="position" class="block text-sm font-medium text-gray-700">Posisi Artikel</label>
+                    <select name="position" id="position" required
+                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                         <option value="">Pilih Posisi</option>
                         <option value="news_list">News List</option>
                         <option value="sub_headline">Sub Headline</option>
@@ -109,120 +135,183 @@ require 'backend/get_category.php';
                     </select>
                 </div>
 
-                <!-- Custom Toolbar -->
-                <div class="border rounded-lg p-2 space-x-1 bg-gray-50 flex flex-wrap items-center">
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Tebal" id="bold-button">
-                        <i class="fas fa-bold"></i>
-                    </button>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Miring" id="italic-button">
-                        <i class="fas fa-italic"></i>
-                    </button>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Garis Bawah" id="underline-button">
-                        <i class="fas fa-underline"></i>
-                    </button>
-                    <div class="w-px h-6 bg-gray-300 mx-2"></div>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Daftar Poin" id="bullet-list-button">
-                        <i class="fas fa-list-ul"></i>
-                    </button>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Daftar Nomor" id="ordered-list-button">
-                        <i class="fas fa-list-ol"></i>
-                    </button>
-                    <div class="w-px h-6 bg-gray-300 mx-2"></div>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Sisipkan Gambar" id="image-button">
-                        <i class="fas fa-image"></i>
-                    </button>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Sisipkan Tautan" id="link-button">
-                        <i class="fas fa-link"></i>
-                    </button>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Mode Baca" id="read-mode-button">
-                        <i class="fas fa-book-reader"></i>
-                    </button>
-                    <div class="w-px h-6 bg-gray-300 mx-2"></div>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Warna Teks" id="text-color-button">
-                        <i class="fas fa-palette"></i>
-                    </button>
-                    <select id="font-size-select" class="p-2 border rounded bg-white">
-                        <option value="normal">Normal</option>
-                        <option value="h1">Judul 1</option>
-                        <option value="h2">Judul 2</option>
-                        <option value="h3">Judul 3</option>
-                    </select>
-                    <div class="w-px h-6 bg-gray-300 mx-2"></div>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Baca Juga" id="read-also-button">
-                        <i class="fas fa-book"></i>
-                    </button>
-                    <button type="button" class="p-2 hover:bg-gray-200 rounded tooltip" data-tooltip="Dikutip Dari" id="quote-from-button">
-                        <i class="fas fa-quote-right"></i>
-                    </button>
+                <!-- Toolbar with Tooltips -->
+                <div class="flex flex-wrap items-center gap-2 p-3 bg-gray-50 border rounded-lg">
+                    <div class="flex items-center gap-1">
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Tebal">
+                            <i class="fas fa-bold"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Tebal</span>
+                        </button>
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Miring">
+                            <i class="fas fa-italic"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Miring</span>
+                        </button>
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Garis Bawah">
+                            <i class="fas fa-underline"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Garis Bawah</span>
+                        </button>
+                    </div>
+
+                    <div class="w-px h-6 bg-gray-300"></div>
+
+                    <div class="flex items-center gap-1">
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Daftar Poin">
+                            <i class="fas fa-list-ul"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Daftar Poin</span>
+                        </button>
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Daftar Nomor">
+                            <i class="fas fa-list-ol"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Daftar Nomor</span>
+                        </button>
+                    </div>
+
+                    <div class="w-px h-6 bg-gray-300"></div>
+
+                    <div class="flex items-center gap-1">
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Sisipkan Gambar">
+                            <i class="fas fa-image"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Sisipkan Gambar</span>
+                        </button>
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Sisipkan Tautan">
+                            <i class="fas fa-link"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Sisipkan Tautan</span>
+                        </button>
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Mode Baca">
+                            <i class="fas fa-book-reader"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Mode Baca</span>
+                        </button>
+                    </div>
+
+                    <div class="w-px h-6 bg-gray-300"></div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Warna Teks">
+                            <i class="fas fa-palette"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Warna Teks</span>
+                        </button>
+                        <select id="font-size-select"
+                            class="px-3 py-2 border rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="normal">Normal</option>
+                            <option value="h1">Judul 1</option>
+                            <option value="h2">Judul 2</option>
+                            <option value="h3">Judul 3</option>
+                        </select>
+                    </div>
+
+                    <div class="w-px h-6 bg-gray-300"></div>
+
+                    <div class="flex items-center gap-1">
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Baca Juga">
+                            <i class="fas fa-book"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Baca Juga</span>
+                        </button>
+                        <button type="button"
+                            class="p-2 hover:bg-gray-200 rounded-md transition-colors group relative"
+                            aria-label="Dikutip Dari">
+                            <i class="fas fa-quote-right"></i>
+                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Dikutip Dari</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Editor -->
-                <div id="editor" class="h-96 border rounded-lg"></div>
+                <!-- Editor Area -->
+                <div id="editor" class="min-h-[24rem] border rounded-lg p-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></div>
                 <input type="hidden" name="content" id="hiddenContent">
 
                 <!-- Image Upload -->
                 <div class="space-y-4">
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors group">
                         <input type="file" id="image" name="image" accept="image/*" class="hidden" required>
-                        <label for="image" class="cursor-pointer">
-                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
-                            <p class="text-gray-600">Klik untuk mengunggah gambar utama</p>
-                            <p class="text-sm text-gray-400">Ukuran file maksimal: 2MB</p>
+                        <label for="image" class="cursor-pointer block">
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 group-hover:text-blue-500 transition-colors mb-3"></i>
+                                <p class="text-gray-700 font-medium">Klik untuk mengunggah gambar utama</p>
+                                <p class="text-sm text-gray-500 mt-1">Ukuran file maksimal: 2MB</p>
+                            </div>
                         </label>
-                        <div id="imagePreview" class="mt-4 hidden">
-                            <img src="" alt="Preview" class="max-w-xs mx-auto">
+                        <div id="imagePreview" class="mt-6 hidden">
+                            <img src="" alt="Preview" class="max-w-xs mx-auto rounded-lg shadow-md">
                         </div>
                     </div>
                     <input type="text" name="figcaption" id="figcaption" placeholder="Keterangan gambar"
-                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                 </div>
 
-                <!-- Submit Buttons -->
-                <div class="flex justify-end space-x-4">
+                <!-- Action Buttons -->
+                <div class="flex justify-end gap-4">
                     <button type="button" id="saveDraftButton"
-                        class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-4 focus:ring-gray-200">
-                        Simpan Draf
+                        class="px-6 py-2.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-4 focus:ring-gray-200 transition duration-150 flex items-center gap-2">
+                        <i class="fas fa-save"></i>
+                        <span>Simpan Draf</span>
                     </button>
                     <button type="submit"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200">
-                        Publikasikan Artikel
+                        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition duration-150 flex items-center gap-2">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Publikasikan Artikel</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Read Mode Modal -->
-    <div id="readModeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white w-3/4 h-3/4 rounded-lg p-8 overflow-y-auto relative">
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b">
-                <h2 class="text-2xl font-bold">Mode Pratinjau</h2>
-                <button id="closeReadMode" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
+    <!-- Preview Modal -->
+    <div id="readModeModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white w-11/12 lg:w-3/4 h-3/4 rounded-xl shadow-xl">
+            <div class="h-full flex flex-col">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-6 border-b">
+                    <h2 class="text-2xl font-bold text-gray-900">Mode Pratinjau</h2>
+                    <button id="closeReadMode" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
 
-            <!-- Preview Content -->
-            <div id="readModeContent" class="max-w-4xl mx-auto">
-                <!-- Article Header -->
-                <div class="mb-8">
-                    <h1 id="previewTitle" class="text-3xl font-bold mb-3"></h1>
-                    <div class="flex items-center text-gray-600 text-sm mb-4">
-                        <span class="mr-2">tim |</span>
-                        <span id="previewAuthor" class="font-medium mr-4"></span>
-                        <time id="previewDate"></time>
+                <!-- Modal Content -->
+                <div class="flex-1 overflow-y-auto p-6">
+                    <div class="max-w-4xl mx-auto">
+                        <!-- Article Header -->
+                        <div class="mb-8">
+                            <h1 id="previewTitle" class="text-3xl font-bold text-gray-900 mb-3"></h1>
+                            <div class="flex items-center gap-2 text-gray-600 text-sm">
+                                <span>tim</span>
+                                <span class="mx-2">|</span>
+                                <span id="previewAuthor" class="font-medium"></span>
+                                <time id="previewDate" class="ml-4"></time>
+                            </div>
+                        </div>
+
+                        <!-- Featured Image -->
+                        <div id="previewImageContainer" class="mb-6 hidden">
+                            <img id="previewImage" src="" alt="" class="w-full h-auto rounded-lg mb-2">
+                            <p id="previewCaption" class="text-sm text-gray-600 italic"></p>
+                        </div>
+
+                        <!-- Article Content -->
+                        <div id="previewContent" class="prose max-w-none">
+                            <!-- Content will be populated by JavaScript -->
+                        </div>
                     </div>
                 </div>
-
-                <!-- Featured Image -->
-                <div id="previewImageContainer" class="mb-6 hidden">
-                    <img id="previewImage" src="" alt="" class="w-full h-auto rounded-lg mb-2">
-                    <p id="previewCaption" class="text-sm text-gray-600 italic"></p>
-                </div>
-
-                <!-- Article Content -->
-                <div id="previewContent" class="prose max-w-none"></div>
             </div>
         </div>
     </div>

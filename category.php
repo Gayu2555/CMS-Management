@@ -13,30 +13,29 @@
     <div class="flex">
         <!-- Sidebar -->
         <div class="fixed inset-y-0 left-0 w-64 bg-gray-900 text-white shadow-xl">
-            <div class="p-6 border-b border-gray-700">
+            <div class="p-6 border-b border-gray-800">
                 <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">Urbansiana - CMS</h2>
                 <p class="text-sm text-gray-400 mt-1">Sistem Manajemen Konten</p>
             </div>
-            <nav class="mt-6 space-y-1">
-                <a href="index.php" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200">
-                    <i class="fas fa-pen-to-square mr-3"></i>
+            <nav class="mt-6 space-y-2 px-3">
+                <a href="index.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                    <i class="fas fa-pen-to-square mr-3 text-gray-400 group-hover:text-blue-400"></i>
                     Tulis Berita
                 </a>
-                <a href="#" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200">
-                    <i class="fas fa-newspaper mr-3"></i>
+                <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                    <i class="fas fa-newspaper mr-3 text-gray-400 group-hover:text-blue-400"></i>
                     Semua Artikel
                 </a>
-                <a href="#" class="flex items-center px-6 py-3 text-white bg-gray-800 border-l-4 border-blue-500">
-                    <i class="fas fa-folder mr-3"></i>
+                <a href="#" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
+                    <i class="fas fa-folder mr-3 text-blue-400"></i>
                     Kategori
                 </a>
-                <a href="#" class="flex items-center px-6 py-3 text-white bg-gray-800 border-l-4 border-blue-500">
-                    <i class="fa-regular fa-list"></i>
+                <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-regular fa-list mr-3 text-gray-400 group-hover:text-blue-400"></i>
                     Daftar Artikel
                 </a>
             </nav>
         </div>
-
         <!-- Main Content -->
         <div class="ml-64 flex-1 p-8">
             <div class="max-w-4xl mx-auto">
