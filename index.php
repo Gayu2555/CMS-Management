@@ -9,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="https://kit.fontawesome.com/d388dc6636.js" crossorigin="anonymous"></script>
 </head>
 <?php
 require 'backend/get_category.php';
@@ -23,20 +24,20 @@ require 'backend/get_category.php';
         </div>
         <nav class="mt-6 space-y-2 px-3">
             <a href="#" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
-                <i class="fas fa-pen-to-square mr-3 text-gray-400 group-hover:text-blue-400"></i>
-                Kategori
+                <i class="fas fa-pen-to-square mr-3 text-blue-400 group-hover:text-blue-400"></i>
+                Tulis Berita
             </a>
-            <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+            <a href="all_article.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
                 <i class="fas fa-newspaper mr-3 text-gray-400 group-hover:text-blue-400"></i>
                 Semua Artikel
             </a>
-            <a href="index.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                <i class="fas fa-folder mr-3 text-blue-400"></i>
+            <a href="category.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <i class="fas fa-folder mr-3 text-gray-400"></i>
                 Kategori
             </a>
             <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                <i class="fa-regular fa-list mr-3 text-gray-400 group-hover:text-blue-400"></i>
-                Daftar Artikel
+                <i class="fa-solid fa-binoculars"></i>
+                From Reporter Lapangan
             </a>
         </nav>
     </div>

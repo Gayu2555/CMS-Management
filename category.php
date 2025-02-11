@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="src/output.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/d388dc6636.js" crossorigin="anonymous"></script>
     <title>CikarangTimes - Manajemen Kategori</title>
 </head>
 
@@ -22,7 +23,7 @@
                     <i class="fas fa-pen-to-square mr-3 text-gray-400 group-hover:text-blue-400"></i>
                     Tulis Berita
                 </a>
-                <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <a href="all_article.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
                     <i class="fas fa-newspaper mr-3 text-gray-400 group-hover:text-blue-400"></i>
                     Semua Artikel
                 </a>
