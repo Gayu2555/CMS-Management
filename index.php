@@ -35,7 +35,7 @@ require 'backend/get_category.php';
                 <i class="fas fa-folder mr-3 text-gray-400"></i>
                 Kategori
             </a>
-            <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+            <a href="list_reporter.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
                 <i class="fa-solid fa-binoculars"></i>
                 From Reporter Lapangan
             </a>
