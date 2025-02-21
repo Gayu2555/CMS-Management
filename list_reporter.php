@@ -46,7 +46,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
                 <i class="fas fa-folder mr-3 text-gray-400"></i>
                 Kategori
             </a>
-            <a href="field_reporter.php" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
+            <a href="list_reporter.php" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
                 <i class="fa-solid fa-binoculars mr-3 text-blue-400"></i>
                 From Reporter Lapangan
             </a>

@@ -13,34 +13,31 @@
 
 <body class="bg-gray-50 min-h-screen">
     <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 w-64 bg-gray-900 text-white shadow-xl z-20">
-        <div class="p-6">
-            <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-500 to-teal-400 bg-clip-text text-transparent">Urbansiana</h2>
-            <p class="text-sm text-gray-400 mt-1">Content Management System</p>
+    <div class="fixed inset-y-0 left-0 w-64 bg-gray-900 text-white shadow-xl">
+        <div class="p-6 border-b border-gray-800">
+            <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">Urbansiana - CMS</h2>
+            <p class="text-sm text-gray-400 mt-1">Sistem Manajemen Konten</p>
         </div>
-
-        <nav class="mt-6 px-4 space-y-1">
-            <a href="#" class="flex items-center px-4 py-3 rounded-lg bg-blue-600 text-white group">
-                <i class="fas fa-pen-to-square mr-3"></i>
-                <span class="font-medium">Write Article</span>
+        <nav class="mt-6 space-y-2 px-3">
+            <a href="#" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
+                <i class="fas fa-pen-to-square mr-3 text-blue-400 group-hover:text-blue-400"></i>
+                Tulis Berita
             </a>
-
-            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                <i class="fas fa-newspaper mr-3 opacity-75"></i>
-                <span>All Articles</span>
+            <a href="all_article.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <i class="fas fa-newspaper mr-3 text-gray-400 group-hover:text-blue-400"></i>
+                Semua Artikel
             </a>
-
-            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                <i class="fas fa-folder mr-3 opacity-75"></i>
-                <span>Categories</span>
+            <a href="category.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <i class="fas fa-folder mr-3 text-gray-400"></i>
+                Kategori
             </a>
-
-            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                <i class="fas fa-binoculars mr-3 opacity-75"></i>
-                <span>Field Reports</span>
+            <a href="list_reporter.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <i class="fa-solid fa-binoculars"></i>
+                From Reporter Lapangan
             </a>
         </nav>
     </div>
+
 
     <!-- Main Content -->
     <div class="ml-64 p-8">
