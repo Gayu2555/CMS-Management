@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="src/output.css" rel="stylesheet">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="readAlsoModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-800">Tambahkan "Baca Juga"</h2>
+            <input type="text" id="readAlsoTitle" placeholder="Judul Artikel"
+                class="w-full p-3 border border-gray-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="url" id="readAlsoUrl" placeholder="URL Artikel"
+                class="w-full p-3 border border-gray-300 rounded-lg mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex justify-end gap-3">
+                <button id="cancelReadAlso"
+                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">Batal</button>
+                <button id="insertReadAlso"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Tambah</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Kutipan -->
+    <div id="quoteFromModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-800">Tambahkan Kutipan</h2>
+            <textarea id="quoteText" placeholder="Teks Kutipan"
+                class="w-full p-3 border border-gray-300 rounded-lg mb-3 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <input type="text" id="quoteSource" placeholder="Sumber Kutipan"
+                class="w-full p-3 border border-gray-300 rounded-lg mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex justify-end gap-3">
+                <button id="cancelQuoteFrom"
+                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">Batal</button>
+                <button id="insertQuoteFrom"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Tambah</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

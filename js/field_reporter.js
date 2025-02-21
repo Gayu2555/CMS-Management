@@ -40,6 +40,14 @@ $(document).ready(function () {
         );
       },
       success: function (response) {
+        if (response.error) {
+          $("#reportsTableBody").html(
+            `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">${response.error}</td></tr>`
+          );
+          $("#pagination").html("");
+          return;
+        }
+
         updateTable(response.reports);
         updatePagination(response.pagination);
         updateStatsCards(response.status_counts);
@@ -48,9 +56,16 @@ $(document).ready(function () {
         // Update current page
         currentPage = response.pagination.current_page;
       },
-      error: function () {
+      error: function (xhr, status, error) {
+        console.error("Ajax error:", error);
+        let errorMessage = "Error loading data. Please try again.";
+
+        if (xhr.responseJSON && xhr.responseJSON.error) {
+          errorMessage = xhr.responseJSON.error;
+        }
+
         $("#reportsTableBody").html(
-          '<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Error loading data. Please try again.</td></tr>'
+          `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">${errorMessage}</td></tr>`
         );
         $("#pagination").html("");
       },
@@ -58,7 +73,7 @@ $(document).ready(function () {
   }
 
   function updateTable(reports) {
-    if (reports.length === 0) {
+    if (!reports || reports.length === 0) {
       $("#reportsTableBody").html(
         '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada laporan yang ditemukan</td></tr>'
       );
@@ -106,7 +121,7 @@ $(document).ready(function () {
   }
 
   function updatePagination(pagination) {
-    if (pagination.total_pages <= 1) {
+    if (!pagination || pagination.total_pages <= 1) {
       $("#pagination").html("");
       return;
     }
@@ -189,6 +204,11 @@ $(document).ready(function () {
   }
 
   function updateStatsCards(statusCounts) {
+    if (!statusCounts) {
+      $("#statsCards").html("");
+      return;
+    }
+
     const statusConfig = {
       pending: {
         icon: "fa-clock",
@@ -212,7 +232,10 @@ $(document).ready(function () {
 
     Object.keys(statusCounts).forEach((status) => {
       const count = statusCounts[status];
-      const config = statusConfig[status];
+      const config = statusConfig[status] || {
+        icon: "fa-question-circle",
+        color: "bg-gray-100 text-gray-800 border-gray-200",
+      };
 
       html += `
                 <div class="${config.color} border p-4 rounded-lg shadow-sm">
@@ -233,7 +256,11 @@ $(document).ready(function () {
   }
 
   function updateTotalCount(total) {
-    $("#reportsCount").text(`Total: ${total} reports`);
+    if (total !== undefined && total !== null) {
+      $("#reportsCount").text(`Total: ${total} reports`);
+    } else {
+      $("#reportsCount").text(`Total: 0 reports`);
+    }
   }
 
   function getStatusClass(status) {
@@ -252,6 +279,158 @@ $(document).ready(function () {
   }
 
   function capitalizeFirstLetter(string) {
+    if (!string) return "";
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 });
+
+// Add these functions to your field_reporter.js file
+
+function viewPhoto(photoUrl) {
+  // Create modal for viewing photo
+  const modal = document.createElement("div");
+  modal.className =
+    "fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50";
+  modal.id = "photoModal";
+
+  modal.innerHTML = `
+        <div class="bg-white rounded-lg max-w-3xl max-h-[90vh] overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-xl font-semibold">Photo Preview</h3>
+                <button onclick="closePhotoModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 flex justify-center">
+                <img src="${photoUrl}" alt="Report Photo" class="max-h-[70vh] max-w-full object-contain" />
+            </div>
+            <div class="p-4 border-t flex justify-end">
+                <button onclick="closePhotoModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+                    Close
+                </button>
+            </div>
+        </div>
+    `;
+
+  document.body.appendChild(modal);
+}
+
+function closePhotoModal() {
+  const modal = document.getElementById("photoModal");
+  if (modal) {
+    modal.remove();
+  }
+}
+
+function updateStatus(reportId, newStatus) {
+  // Show confirmation dialog before updating status
+  if (!confirm(`Are you sure you want to mark this report as ${newStatus}?`)) {
+    return;
+  }
+
+  $.ajax({
+    url: "backend/update_report_status.php",
+    type: "POST",
+    data: {
+      report_id: reportId,
+      status: newStatus,
+    },
+    success: function (response) {
+      try {
+        const result = JSON.parse(response);
+        if (result.success) {
+          // Refresh the reports table
+          loadReports();
+          showNotification(`Report successfully ${newStatus}`, "success");
+        } else {
+          showNotification(`Error: ${result.message}`, "error");
+        }
+      } catch (e) {
+        showNotification("Error processing response", "error");
+        console.error(e);
+      }
+    },
+    error: function () {
+      showNotification("Server error while updating status", "error");
+    },
+  });
+}
+
+function deleteReport(reportId) {
+  // Show confirmation dialog before deleting
+  if (
+    !confirm(
+      "Are you sure you want to delete this report? This action cannot be undone."
+    )
+  ) {
+    return;
+  }
+
+  $.ajax({
+    url: "backend/delete_report.php",
+    type: "POST",
+    data: {
+      report_id: reportId,
+    },
+    success: function (response) {
+      try {
+        const result = JSON.parse(response);
+        if (result.success) {
+          // Refresh the reports table
+          loadReports();
+          showNotification("Report successfully deleted", "success");
+        } else {
+          showNotification(`Error: ${result.message}`, "error");
+        }
+      } catch (e) {
+        showNotification("Error processing response", "error");
+        console.error(e);
+      }
+    },
+    error: function () {
+      showNotification("Server error while deleting report", "error");
+    },
+  });
+}
+
+function showNotification(message, type = "info") {
+  const notificationContainer = document.getElementById(
+    "notificationContainer"
+  );
+
+  if (!notificationContainer) {
+    // Create the notification container if it doesn't exist
+    const container = document.createElement("div");
+    container.id = "notificationContainer";
+    container.className =
+      "fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md";
+    document.body.appendChild(container);
+  }
+
+  const notification = document.createElement("div");
+  notification.className = `p-4 rounded-lg shadow-lg transition-opacity duration-300 flex items-center 
+        ${
+          type === "success"
+            ? "bg-green-100 text-green-800 border-l-4 border-green-500"
+            : type === "error"
+            ? "bg-red-100 text-red-800 border-l-4 border-red-500"
+            : "bg-blue-100 text-blue-800 border-l-4 border-blue-500"
+        }`;
+
+  notification.innerHTML = `
+        <div class="flex-1">${message}</div>
+        <button class="ml-4 text-gray-500 hover:text-gray-700" onclick="this.parentNode.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+  document.getElementById("notificationContainer").appendChild(notification);
+
+  // Auto-dismiss after 5 seconds
+  setTimeout(() => {
+    notification.classList.add("opacity-0");
+    setTimeout(() => {
+      notification.remove();
+    }, 300);
+  }, 5000);
+}
