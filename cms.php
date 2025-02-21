@@ -228,47 +228,105 @@
                 }
             });
 
-            // Initialize all modal elements
-            const readModeModal = document.getElementById("readModeModal");
-            const readAlsoModal = document.getElementById("readAlsoModal");
-            const quoteFromModal = document.getElementById("quoteFromModal");
+            // Initialize modal elements
+            const modals = {
+                readMode: document.getElementById("readModeModal"),
+                readAlso: document.getElementById("readAlsoModal"),
+                quoteFrom: document.getElementById("quoteFromModal")
+            };
             const readModeContent = document.getElementById("readModeContent");
 
-            // Basic formatting buttons
-            const formatButtons = ["bold", "italic", "underline"];
-            formatButtons.forEach(type => {
-                document.getElementById(`${type}-button`).onclick = () => {
-                    quill.format(type, !quill.getFormat()[type]);
-                };
+            // Get toolbar buttons
+            const buttons = {
+                bold: document.getElementById('bold-button'),
+                italic: document.getElementById('italic-button'),
+                underline: document.getElementById('underline-button'),
+                bulletList: document.getElementById('bullet-list-button'),
+                orderedList: document.getElementById('ordered-list-button'),
+                textColor: document.getElementById('text-color-button'),
+                image: document.getElementById('image-button'),
+                link: document.getElementById('link-button'),
+                readMode: document.getElementById('read-mode-button'),
+                readAlso: document.getElementById('read-also-button'),
+                quoteFrom: document.getElementById('quote-from-button')
+            };
+
+            // Function to toggle format and update button state
+            function toggleFormat(format) {
+                const isFormatted = quill.getFormat()[format];
+                quill.format(format, !isFormatted);
+                updateButtonState(format, !isFormatted);
+            }
+
+            // Function to update button visual state
+            function updateButtonState(format, isActive) {
+                const button = buttons[format];
+                if (button) {
+                    if (isActive) {
+                        button.classList.add('bg-gray-200');
+                        button.setAttribute('aria-pressed', 'true');
+                    } else {
+                        button.classList.remove('bg-gray-200');
+                        button.setAttribute('aria-pressed', 'false');
+                    }
+                }
+            }
+
+            // Set up keyboard shortcuts
+            const shortcuts = {
+                'b': 'bold',
+                'i': 'italic',
+                'u': 'underline'
+            };
+
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    const format = shortcuts[e.key.toLowerCase()];
+                    if (format) {
+                        e.preventDefault();
+                        toggleFormat(format);
+                    }
+                } else if (e.key === "Escape") {
+                    Object.values(modals).forEach(modal => {
+                        modal.classList.replace("flex", "hidden");
+                    });
+                }
             });
 
-            document.getElementById("bullet-list-button").onclick = () => quill.format('list', 'bullet');
-            document.getElementById("ordered-list-button").onclick = () => quill.format('list', 'ordered');
+            // Add click listeners for basic formatting
+            ['bold', 'italic', 'underline'].forEach(format => {
+                buttons[format]?.addEventListener('click', () => toggleFormat(format));
+            });
 
-            // Text color button
-            document.getElementById("text-color-button").onclick = () => {
+            // List formatting
+            buttons.bulletList?.addEventListener('click', () => quill.format('list', 'bullet'));
+            buttons.orderedList?.addEventListener('click', () => quill.format('list', 'ordered'));
+
+            // Text color
+            buttons.textColor?.addEventListener('click', () => {
                 const color = prompt("Masukkan kode warna (contoh: #FF0000):");
                 if (color) quill.format('color', color);
-            };
+            });
 
-            // Font size select
-            document.getElementById("font-size-select").onchange = (e) => {
+            // Font size handling
+            document.getElementById("font-size-select")?.addEventListener('change', (e) => {
                 const value = e.target.value;
                 quill.format('header', value === 'normal' ? false : parseInt(value.replace('h', '')));
-            };
+            });
 
-            // Image insertion
-            document.getElementById("image-button").onclick = () => {
+            // Image handling
+            buttons.image?.addEventListener('click', () => {
                 const url = prompt("Masukkan URL gambar:");
                 if (url) {
-                    const selection = quill.getSelection();
-                    const index = selection ? selection.index : quill.getLength();
-                    quill.insertEmbed(index, 'image', url);
+                    const range = quill.getSelection() || {
+                        index: quill.getLength()
+                    };
+                    quill.insertEmbed(range.index, 'image', url);
                 }
-            };
+            });
 
-            // Link insertion
-            document.getElementById("link-button").onclick = () => {
+            // Link handling
+            buttons.link?.addEventListener('click', () => {
                 const url = prompt("Masukkan URL:");
                 if (url) {
                     const range = quill.getSelection();
@@ -285,114 +343,113 @@
                         }
                     }
                 }
-            };
+            });
 
-            // Read Mode functionality
-            document.getElementById("read-mode-button").onclick = () => {
+            // Read mode functionality
+            buttons.readMode?.addEventListener('click', () => {
                 readModeContent.innerHTML = quill.root.innerHTML;
-                readModeModal.classList.replace("hidden", "flex");
-            };
-
-            document.getElementById("closeReadMode").onclick = () => {
-                readModeModal.classList.replace("flex", "hidden");
-            };
+                modals.readMode.classList.replace("hidden", "flex");
+            });
 
             // Read Also functionality
-            document.getElementById("read-also-button").onclick = () => {
-                readAlsoModal.classList.replace("hidden", "flex");
-            };
+            function handleReadAlso(action) {
+                const modal = modals.readAlso;
+                const fields = ["readAlsoTitle", "readAlsoUrl"];
 
-            document.getElementById("cancelReadAlso").onclick = () => {
-                readAlsoModal.classList.replace("flex", "hidden");
-                ["readAlsoTitle", "readAlsoUrl"].forEach(id => document.getElementById(id).value = "");
-            };
-
-            document.getElementById("insertReadAlso").onclick = () => {
-                const title = document.getElementById("readAlsoTitle").value;
-                const url = document.getElementById("readAlsoUrl").value;
-                if (title && url) {
-                    const html = `
-                <div class="read-also p-4 bg-gray-50 rounded-lg my-4">
-                    <p><strong>Baca Juga:</strong> <a href="${url}" target="_blank" class="text-blue-600 hover:underline">${title}</a></p>
-                </div>`;
-                    const range = quill.getSelection(true);
-                    quill.clipboard.dangerouslyPasteHTML(range.index, html);
-                    readAlsoModal.classList.replace("flex", "hidden");
-                    ["readAlsoTitle", "readAlsoUrl"].forEach(id => document.getElementById(id).value = "");
+                if (action === 'open') {
+                    modal.classList.replace("hidden", "flex");
+                } else if (action === 'insert') {
+                    const title = document.getElementById("readAlsoTitle").value;
+                    const url = document.getElementById("readAlsoUrl").value;
+                    if (title && url) {
+                        const html = `
+                    <div class="read-also p-4 bg-gray-50 rounded-lg my-4">
+                        <p><strong>Baca Juga:</strong> <a href="${url}" target="_blank" class="text-blue-600 hover:underline">${title}</a></p>
+                    </div>`;
+                        const range = quill.getSelection(true);
+                        quill.clipboard.dangerouslyPasteHTML(range.index, html);
+                        fields.forEach(id => document.getElementById(id).value = "");
+                    }
+                    modal.classList.replace("flex", "hidden");
                 }
-            };
+            }
 
             // Quote functionality
-            document.getElementById("quote-from-button").onclick = () => {
-                quoteFromModal.classList.replace("hidden", "flex");
-            };
+            function handleQuote(action) {
+                const modal = modals.quoteFrom;
+                const fields = ["quoteText", "quoteSource"];
 
-            document.getElementById("cancelQuoteFrom").onclick = () => {
-                quoteFromModal.classList.replace("flex", "hidden");
-                ["quoteText", "quoteSource"].forEach(id => document.getElementById(id).value = "");
-            };
-
-            document.getElementById("insertQuoteFrom").onclick = () => {
-                const text = document.getElementById("quoteText").value;
-                const source = document.getElementById("quoteSource").value;
-                if (text && source) {
-                    const html = `
-                <div class="quote-from p-4 bg-gray-50 border-l-4 border-blue-500 rounded-lg my-4">
-                    <blockquote class="text-gray-700 italic">"${text}"</blockquote>
-                    <p class="mt-2 text-sm text-gray-600">Sumber: <span class="font-medium">${source}</span></p>
-                </div>`;
-                    const range = quill.getSelection(true);
-                    quill.clipboard.dangerouslyPasteHTML(range.index, html);
-                    quoteFromModal.classList.replace("flex", "hidden");
-                    ["quoteText", "quoteSource"].forEach(id => document.getElementById(id).value = "");
+                if (action === 'open') {
+                    modal.classList.replace("hidden", "flex");
+                } else if (action === 'insert') {
+                    const text = document.getElementById("quoteText").value;
+                    const source = document.getElementById("quoteSource").value;
+                    if (text && source) {
+                        const html = `
+                    <div class="quote-from p-4 bg-gray-50 border-l-4 border-blue-500 rounded-lg my-4">
+                        <blockquote class="text-gray-700 italic">"${text}"</blockquote>
+                        <p class="mt-2 text-sm text-gray-600">Sumber: <span class="font-medium">${source}</span></p>
+                    </div>`;
+                        const range = quill.getSelection(true);
+                        quill.clipboard.dangerouslyPasteHTML(range.index, html);
+                        fields.forEach(id => document.getElementById(id).value = "");
+                    }
+                    modal.classList.replace("flex", "hidden");
                 }
-            };
+            }
 
-            // Handle click on quote sources
-            quill.root.addEventListener("click", (event) => {
-                const sourceElement = event.target.closest("[data-source]");
-                if (sourceElement) {
-                    event.preventDefault();
-                    alert("Sumber kutipan: " + sourceElement.getAttribute("data-source"));
+            // Update button states when selection changes
+            quill.on('selection-change', (range) => {
+                if (range) {
+                    const formats = quill.getFormat(range);
+                    ['bold', 'italic', 'underline'].forEach(format => {
+                        updateButtonState(format, formats[format]);
+                    });
                 }
             });
 
-            // Form submission
-            document.getElementById("articleForm").onsubmit = (e) => {
-                document.getElementById("hiddenContent").value = quill.root.innerHTML;
-                const fields = ["title", "author", "category", "date_created", "position"];
-                const empty = fields.some(id => !document.getElementById(id).value);
-                if (empty) {
-                    alert("Harap isi semua kolom wajib");
-                    e.preventDefault();
-                    return false;
+            // Add hover effects to formatting buttons
+            ['bold', 'italic', 'underline'].forEach(format => {
+                const button = buttons[format];
+                if (button) {
+                    button.addEventListener('mouseenter', () => {
+                        if (button.getAttribute('aria-pressed') !== 'true') {
+                            button.classList.add('hover:bg-gray-200');
+                        }
+                    });
+
+                    button.addEventListener('mouseleave', () => {
+                        if (button.getAttribute('aria-pressed') !== 'true') {
+                            button.classList.remove('hover:bg-gray-200');
+                        }
+                    });
                 }
-                return true;
-            };
+            });
 
-            // Preview functionality
-            document.getElementById("preview-button").onclick = () => {
-                readModeContent.innerHTML = quill.root.innerHTML;
-                readModeModal.classList.replace("hidden", "flex");
-            };
-
-            // Close modals when clicking outside
-            [readModeModal, readAlsoModal, quoteFromModal].forEach(modal => {
-                modal.addEventListener("click", (e) => {
+            // Set up modal event listeners
+            Object.values(modals).forEach(modal => {
+                modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
                         modal.classList.replace("flex", "hidden");
                     }
                 });
             });
 
-            // Handle keyboard shortcuts
-            document.addEventListener("keydown", (e) => {
-                if (e.key === "Escape") {
-                    [readModeModal, readAlsoModal, quoteFromModal].forEach(modal => {
-                        modal.classList.replace("flex", "hidden");
-                    });
-                }
-            });
+            // Form submission handling
+            const articleForm = document.getElementById("articleForm");
+            if (articleForm) {
+                articleForm.addEventListener('submit', (e) => {
+                    document.getElementById("hiddenContent").value = quill.root.innerHTML;
+                    const requiredFields = ["title", "author", "category", "date_created", "position"];
+                    const isEmpty = requiredFields.some(id => !document.getElementById(id)?.value);
+                    if (isEmpty) {
+                        alert("Harap isi semua kolom wajib");
+                        e.preventDefault();
+                        return false;
+                    }
+                    return true;
+                });
+            }
         });
     </script>
 </body>
