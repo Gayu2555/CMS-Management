@@ -152,7 +152,24 @@
                     <!-- Editor -->
                     <div id="editor" class="h-96 border rounded-lg mb-6"></div>
                     <input type="hidden" name="content" id="hiddenContent">
-
+                    <!-- Image Upload -->
+                    <div class="space-y-4">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors group">
+                            <input type="file" id="image" name="image" accept="image/*" class="hidden" required>
+                            <label for="image" class="cursor-pointer block">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 group-hover:text-blue-500 transition-colors mb-3"></i>
+                                    <p class="text-gray-700 font-medium">Klik untuk mengunggah gambar utama</p>
+                                    <p class="text-sm text-gray-500 mt-1">Ukuran file maksimal: 2MB</p>
+                                </div>
+                            </label>
+                            <div id="imagePreview" class="mt-6 hidden">
+                                <img src="" alt="Preview" class="max-w-xs mx-auto rounded-lg shadow-md">
+                            </div>
+                        </div>
+                        <input type="text" name="figcaption" id="figcaption" placeholder="Keterangan gambar"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    </div>
                     <!-- Action Buttons -->
                     <div class="flex justify-end gap-3">
                         <button type="button" id="preview-button" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
