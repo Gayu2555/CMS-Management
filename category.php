@@ -31,6 +31,10 @@
                     <i class="fas fa-folder mr-3 group-hover:text-blue-400"></i>
                     Kategori
                 </a>
+                <a href="list_reporter.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-solid fa-binoculars  text-blue-400 group-hover:text-blue-800"></i>
+                    From Reporter Lapangan
+                </a>
             </nav>
         </div>
 

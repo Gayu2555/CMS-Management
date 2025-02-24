@@ -1,5 +1,5 @@
 <?php
-// process.php
+// process_insert.php
 require_once 'config.php';
 
 // Set header for JSON response
@@ -43,130 +43,60 @@ function handleImageUpload()
     return $filename;
 }
 
+function sanitizeInput($data)
+{
+    return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
+}
+
 try {
-    $pdo = connectDB();
-    $action = $_POST['action'] ?? $_GET['action'] ?? '';
-
-    switch ($action) {
-        case 'saveArticle':
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                throw new Exception('Invalid request method');
-            }
-
-            // Validate required fields
-            $requiredFields = ['title', 'content', 'category', 'author', 'date_created'];
-            foreach ($requiredFields as $field) {
-                if (empty($_POST[$field])) {
-                    throw new Exception("Field '$field' is required");
-                }
-            }
-
-            // Handle image upload
-            $imageUrl = handleImageUpload();
-
-            // Prepare article data
-            $articleData = [
-                'category_id' => $_POST['category'],
-                'title' => $_POST['title'],
-                'slug' => generateSlug($_POST['title']),
-                'date_published' => $_POST['date_created'],
-                'content' => $_POST['content'],
-                'image_url' => $imageUrl,
-                'author_name' => $_POST['author'],
-                'description' => substr(strip_tags($_POST['content']), 0, 200) . '...'
-            ];
-
-            // Insert article
-            $sql = "INSERT INTO articles 
-                    (category_id, title, slug, date_published, content, image_url, description, author_name) 
-                    VALUES 
-                    (:category_id, :title, :slug, :date_published, :content, :image_url, :description, :author_name)";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($articleData);
-
-            echo json_encode([
-                'success' => true,
-                'message' => 'Article saved successfully',
-                'articleId' => $pdo->lastInsertId()
-            ]);
-            break;
-
-        case 'getCategories':
-            $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
-            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode([
-                'success' => true,
-                'categories' => $categories
-            ]);
-            break;
-
-        case 'getArticles':
-            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-            $offset = ($page - 1) * $limit;
-
-            // Get total count
-            $total = $pdo->query("SELECT COUNT(*) FROM articles")->fetchColumn();
-
-            // Get articles with category information
-            $sql = "SELECT a.*, c.name as category_name 
-                    FROM articles a 
-                    JOIN categories c ON a.category_id = c.id 
-                    ORDER BY a.date_published DESC 
-                    LIMIT :limit OFFSET :offset";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-            $stmt->execute();
-
-            $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            echo json_encode([
-                'success' => true,
-                'articles' => $articles,
-                'total' => $total,
-                'pages' => ceil($total / $limit)
-            ]);
-            break;
-
-        case 'deleteArticle':
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                throw new Exception('Invalid request method');
-            }
-
-            $articleId = $_POST['article_id'] ?? null;
-            if (!$articleId) {
-                throw new Exception('Article ID is required');
-            }
-
-            // Get image URL before deletion
-            $stmt = $pdo->prepare("SELECT image_url FROM articles WHERE id = ?");
-            $stmt->execute([$articleId]);
-            $article = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            // Delete article
-            $stmt = $pdo->prepare("DELETE FROM articles WHERE id = ?");
-            $stmt->execute([$articleId]);
-
-            // Delete associated image
-            if ($article['image_url']) {
-                $imagePath = "../uploads/" . $article['image_url'];
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
-            }
-
-            echo json_encode([
-                'success' => true,
-                'message' => 'Article deleted successfully'
-            ]);
-            break;
-
-        default:
-            throw new Exception('Invalid action specified');
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Invalid request method');
     }
+
+    // Validate required fields
+    $requiredFields = ['title', 'content', 'category', 'author', 'date_created'];
+    foreach ($requiredFields as $field) {
+        if (empty($_POST[$field])) {
+            throw new Exception("Field '$field' is required");
+        }
+    }
+
+    $pdo = connectDB();
+
+    // Sanitize input data
+    $category = (int) $_POST['category'];
+    $title = sanitizeInput($_POST['title']);
+    $slug = generateSlug($title);
+    $date_published = sanitizeInput($_POST['date_created']);
+    $content = sanitizeInput($_POST['content']);
+    $author_name = sanitizeInput($_POST['author']);
+    $description = substr(strip_tags($content), 0, 200) . '...';
+
+    // Handle image upload
+    $imageUrl = handleImageUpload();
+
+    // Insert article
+    $sql = "INSERT INTO articles 
+            (category_id, title, slug, date_published, content, image_url, description, author_name) 
+            VALUES 
+            (:category_id, :title, :slug, :date_published, :content, :image_url, :description, :author_name)";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':category_id', $category, PDO::PARAM_INT);
+    $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+    $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+    $stmt->bindParam(':date_published', $date_published, PDO::PARAM_STR);
+    $stmt->bindParam(':content', $content, PDO::PARAM_STR);
+    $stmt->bindParam(':image_url', $imageUrl, PDO::PARAM_STR);
+    $stmt->bindParam(':description', $description, PDO::PARAM_STR);
+    $stmt->bindParam(':author_name', $author_name, PDO::PARAM_STR);
+    $stmt->execute();
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Article saved successfully',
+        'articleId' => $pdo->lastInsertId()
+    ]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([

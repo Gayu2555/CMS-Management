@@ -12,6 +12,7 @@ require 'backend/auth.php';
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 
@@ -66,6 +67,36 @@ require 'backend/auth.php';
                                 <option value="">Select Category</option>
                                 <!-- PHP will populate categories here -->
                             </select>
+                            <script>
+                                $(document).ready(function() {
+                                    function loadCategories() {
+                                        $.ajax({
+                                            url: "backend/get_category.php",
+                                            type: "GET",
+                                            dataType: "json",
+                                            success: function(response) {
+                                                if (response.status === "success") {
+                                                    let categorySelect = $("#category");
+                                                    categorySelect.empty(); // Kosongkan sebelum menambahkan opsi baru
+                                                    categorySelect.append(`<option value="">Select Category</option>`);
+
+                                                    response.data.forEach(function(category) {
+                                                        categorySelect.append(`<option value="${category.id}">${category.name}</option>`);
+                                                    });
+                                                } else {
+                                                    console.error("Gagal memuat kategori:", response.message);
+                                                }
+                                            },
+                                            error: function(xhr, status, error) {
+                                                console.error("Error AJAX:", xhr.responseText);
+                                            }
+                                        });
+                                    }
+
+                                    // Panggil fungsi untuk memuat kategori saat halaman dimuat
+                                    loadCategories();
+                                });
+                            </script>
                         </div>
 
                         <div>
