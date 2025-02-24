@@ -71,7 +71,7 @@ require 'backend/auth.php';
                                 $(document).ready(function() {
                                     function loadCategories() {
                                         $.ajax({
-                                            url: "backend/get_category.php",
+                                            url: "backend/get_categories.php",
                                             type: "GET",
                                             dataType: "json",
                                             success: function(response) {
