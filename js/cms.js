@@ -389,3 +389,96 @@ if (articleForm) {
 window.addEventListener("unload", () => {
   observer.disconnect();
 });
+// Add this JavaScript code after the existing scripts
+document.addEventListener("DOMContentLoaded", function () {
+  const imageInput = document.getElementById("image");
+  const imagePreview = document.getElementById("imagePreview");
+  const previewImage =
+    imagePreview.querySelector("img") || document.createElement("img");
+  const maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
+
+  // Function to show error message
+  function showError(message) {
+    const existingError = document.querySelector(".error-message");
+    if (existingError) existingError.remove();
+
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "error-message text-red-500 text-sm mt-2";
+    errorDiv.textContent = message;
+    imagePreview.parentNode.appendChild(errorDiv);
+  }
+
+  // Function to clear error message
+  function clearError() {
+    const existingError = document.querySelector(".error-message");
+    if (existingError) existingError.remove();
+  }
+
+  // Function to validate image
+  function validateImage(file) {
+    // Check file size
+    if (file.size > maxFileSize) {
+      showError("Ukuran file terlalu besar. Maksimal 2MB.");
+      imageInput.value = "";
+      return false;
+    }
+
+    // Check file type
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      showError(
+        "Format file tidak didukung. Gunakan JPEG, PNG, GIF, atau WEBP."
+      );
+      imageInput.value = "";
+      return false;
+    }
+
+    return true;
+  }
+
+  // Handle image selection
+  imageInput.addEventListener("change", function (e) {
+    clearError();
+    const file = e.target.files[0];
+
+    if (file) {
+      if (validateImage(file)) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          previewImage.src = e.target.result;
+          previewImage.alt = "Preview";
+          previewImage.className = "max-w-xs mx-auto rounded-lg shadow-md";
+
+          if (!imagePreview.contains(previewImage)) {
+            imagePreview.appendChild(previewImage);
+          }
+
+          imagePreview.classList.remove("hidden");
+        };
+
+        reader.readAsDataURL(file);
+      }
+    } else {
+      imagePreview.classList.add("hidden");
+    }
+  });
+
+  // Menambahkan Fungsi Submission
+  // Btw w juga gatau Submission mana yang dimaksud wwkkwk
+  const form = document.getElementById("articleForm");
+  form.addEventListener("submit", function (e) {
+    if (!imageInput.files || !imageInput.files[0]) {
+      e.preventDefault();
+      showError("Silakan pilih gambar utama artikel.");
+      return;
+    }
+
+    const figcaption = document.getElementById("figcaption");
+    if (!figcaption.value.trim()) {
+      e.preventDefault();
+      showError("Silakan isi keterangan gambar.");
+      return;
+    }
+  });
+});
