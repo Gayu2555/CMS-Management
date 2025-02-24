@@ -222,6 +222,145 @@ require 'backend/auth.php';
             </div>
         </div>
     </div>
+    <script>
+        // Load categories on page load
+        $(document).ready(function() {
+            loadCategories();
+        });
+
+        function loadCategories() {
+            $.ajax({
+                url: 'backend/process.php',
+                type: 'GET',
+                data: {
+                    action: 'getCategories'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        var select = $('#category');
+                        select.empty().append('<option value="">Select Category</option>');
+                        response.categories.forEach(function(category) {
+                            select.append(`<option value="${category.id}">${category.name}</option>`);
+                        });
+                    }
+                },
+                error: function() {
+                    alert('Error loading categories');
+                }
+            });
+        }
+
+        // Handle form submission
+        $('#articleForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+            formData.append('action', 'saveArticle');
+            formData.append('content', $('#hiddenContent').val());
+
+            $.ajax({
+                url: 'backend/process.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Article saved successfully!');
+                        window.location.href = 'all_article.php';
+                    } else {
+                        alert(response.message || 'Error saving article');
+                    }
+                },
+                error: function(xhr) {
+                    var error = xhr.responseJSON ? xhr.responseJSON.message : 'Error saving article';
+                    alert(error);
+                }
+            });
+        });
+
+        // Load articles with pagination
+        function loadArticles(page = 1) {
+            $.ajax({
+                url: 'backend/process.php',
+                type: 'GET',
+                data: {
+                    action: 'getArticles',
+                    page: page
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Render articles
+                        var articlesHtml = '';
+                        response.articles.forEach(function(article) {
+                            articlesHtml += `
+                        <div class="article-item">
+                            <h3>${escapeHtml(article.title)}</h3>
+                            <p>Category: ${escapeHtml(article.category_name)}</p>
+                            <p>Author: ${escapeHtml(article.author_name)}</p>
+                            <p>Published: ${new Date(article.date_published).toLocaleDateString()}</p>
+                            <button onclick="deleteArticle(${article.id})" class="delete-btn">Delete</button>
+                        </div>
+                    `;
+                        });
+                        $('#articles-container').html(articlesHtml);
+
+                        // Render pagination
+                        renderPagination(response.pages, page);
+                    }
+                },
+                error: function() {
+                    alert('Error loading articles');
+                }
+            });
+        }
+
+        // Delete article
+        function deleteArticle(articleId) {
+            if (!confirm('Are you sure you want to delete this article?')) {
+                return;
+            }
+
+            $.ajax({
+                url: 'backend/process.php',
+                type: 'POST',
+                data: {
+                    action: 'deleteArticle',
+                    article_id: articleId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Article deleted successfully!');
+                        loadArticles(1); // Reload first page
+                    }
+                },
+                error: function() {
+                    alert('Error deleting article');
+                }
+            });
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Render pagination controls
+        function renderPagination(totalPages, currentPage) {
+            var paginationHtml = '';
+            for (var i = 1; i <= totalPages; i++) {
+                paginationHtml += `
+            <button 
+                class="page-btn ${i === currentPage ? 'active' : ''}"
+                onclick="loadArticles(${i})"
+            >${i}</button>
+        `;
+            }
+            $('#pagination').html(paginationHtml);
+        }
+    </script>
 
 
     <script src="js/cms.js"></script>

@@ -31,12 +31,12 @@
                     <i class="fas fa-folder mr-3 group-hover:text-blue-400"></i>
                     Kategori
                 </a>
-                <a href="list_reporter.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                    <i class="fa-solid fa-binoculars  group-hover:text-blue-800"></i>
-                    From Reporter Lapangan
-                </a>
             </nav>
         </div>
+
+        <!-- Toast Notification -->
+        <div id="toast-container" class="fixed bottom-5 right-5 space-y-3 z-50"></div>
+
         <!-- Main Content -->
         <div class="ml-64 flex-1 p-8">
             <div class="max-w-4xl mx-auto">
@@ -51,63 +51,19 @@
                 <!-- Category Form -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                     <h2 class="text-lg font-semibold text-gray-700 mb-4">Tambah Kategori Baru</h2>
-                    <form class="space-y-4">
+                    <form id="category-form" class="space-y-4">
                         <div>
                             <label for="category-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Kategori</label>
                             <input type="text" id="category-name" name="category-name"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="Masukkan nama kategori">
                         </div>
-                        <div>
-                            <label for="category-description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                            <textarea id="category-description" name="category-description" rows="3"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                placeholder="Masukkan deskripsi kategori"></textarea>
-                        </div>
-                        <div>
-                            <label for="category-slug" class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-                            <input type="text" id="category-slug" name="category-slug"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                placeholder="contoh: berita-terkini">
-                        </div>
                         <div class="flex justify-end">
-                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            <button type="submit" id="submit-btn" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                                 Simpan Kategori
                             </button>
                         </div>
                     </form>
-                </div>
-
-                <!-- Categories List -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Daftar Kategori</h2>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">Berita Terkini</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">berita-terkini</td>
-                                    <td class="px-6 py-4">Berita terbaru seputar Cikarang</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="text-red-600 hover:text-red-800">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>
@@ -123,10 +79,67 @@
             });
             document.getElementById('current-time').textContent = timeString;
         }
-
         updateTime();
         setInterval(updateTime, 1000);
     </script>
+
+    <!-- Load jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            console.log("jQuery siap!"); // Debugging
+
+            $("#category-form").submit(function(e) {
+                e.preventDefault();
+                console.log("Form submit ter-trigger!"); // Debugging
+
+                let categoryName = $("#category-name").val().trim();
+
+                if (categoryName === "") {
+                    showToast("Nama kategori tidak boleh kosong!", "error");
+                    return;
+                }
+
+                $.ajax({
+                    url: "backend/save_category.php",
+                    type: "POST",
+                    data: {
+                        category_name: categoryName
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        console.log("Respon dari server:", response); // Debugging
+                        if (response.status === "success") {
+                            $("#category-name").val(""); // Kosongkan input setelah berhasil
+                        }
+                        showToast(response.message, response.status);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error AJAX:", xhr.responseText); // Debugging
+                        showToast("Terjadi kesalahan saat mengirim data.", "error");
+                    }
+                });
+            });
+
+            function showToast(message, type) {
+                console.log("Menampilkan toast:", message, type); // Debugging
+
+                let bgColor = type === "success" ? "bg-green-500" : "bg-red-500";
+                let toast = $(`
+            <div class="flex items-center ${bgColor} text-white text-sm font-medium px-4 py-3 rounded-lg shadow-md fixed top-5 right-5 opacity-0 transition-all duration-300">
+                <span class="mr-2">${message}</span>
+                <button onclick="$(this).parent().remove()" class="ml-auto focus:outline-none">✖</button>
+            </div>
+        `);
+
+                $("#toast-container").append(toast);
+                setTimeout(() => toast.css("opacity", "1"), 100); // Fade in
+                setTimeout(() => toast.fadeOut(500, () => toast.remove()), 3000); // Auto remove
+            }
+        });
+    </script>
+
 </body>
 
 </html>

@@ -1,209 +1,176 @@
 <?php
-// Prevent any output before JSON response
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
-ini_set('display_errors', 0);
-
+// process.php
 require_once 'config.php';
 
+// Set header for JSON response
 header('Content-Type: application/json');
 
-function generateSlug($string)
+// Helper functions
+function generateSlug($text)
 {
-    $slug = preg_replace('/[^A-Za-z0-9-]+/', '-', strtolower(trim($string)));
-    $slug = preg_replace('/-+/', '-', $slug);
-    return $slug;
+    $text = strtolower($text);
+    $text = preg_replace('/[^a-z0-9-]/', '-', $text);
+    $text = preg_replace('/-+/', '-', $text);
+    return trim($text, '-');
 }
 
-function sanitizeString($string)
+function handleImageUpload()
 {
-    // Replace deprecated FILTER_SANITIZE_STRING
-    return htmlspecialchars(strip_tags(trim($string)), ENT_QUOTES, 'UTF-8');
-}
-
-function handleError($message)
-{
-    echo json_encode([
-        'success' => false,
-        'message' => $message
-    ]);
-    exit;
-}
-
-function generateUniqueSlug($pdo, $table, $baseSlug)
-{
-    $slug = $baseSlug;
-    $counter = 1;
-
-    while (true) {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM $table WHERE slug = ?");
-        $stmt->execute([$slug]);
-        if ($stmt->fetchColumn() == 0) {
-            return $slug;
-        }
-        $slug = $baseSlug . '-' . $counter;
-        $counter++;
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== 0) {
+        throw new Exception('No image uploaded or upload error');
     }
+
+    $file = $_FILES['image'];
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    $maxSize = 2 * 1024 * 1024; // 2MB
+
+    if (!in_array($file['type'], $allowedTypes)) {
+        throw new Exception('Invalid file type. Only JPG and PNG allowed.');
+    }
+
+    if ($file['size'] > $maxSize) {
+        throw new Exception('File too large. Maximum size is 2MB.');
+    }
+
+    $uploadDir = '../uploads/';
+    $filename = uniqid() . '_' . basename($file['name']);
+    $targetPath = $uploadDir . $filename;
+
+    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+        throw new Exception('Failed to move uploaded file.');
+    }
+
+    return $filename;
 }
 
 try {
-    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-        throw new Exception('Metode request tidak valid');
-    }
-
     $pdo = connectDB();
+    $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
-    // Validate required fields
-    $required_fields = ['title', 'date_created', 'content', 'author', 'category', 'position'];
-    foreach ($required_fields as $field) {
-        if (!isset($_POST[$field]) || empty($_POST[$field])) {
-            throw new Exception("Field '$field' harus diisi");
-        }
-    }
+    switch ($action) {
+        case 'saveArticle':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception('Invalid request method');
+            }
 
-    // Sanitize and prepare data
-    $title = sanitizeString($_POST['title']);
-    $baseSlug = generateSlug($title);
-    $category = sanitizeString($_POST['category']);
-    $position = sanitizeString($_POST['position']);
+            // Validate required fields
+            $requiredFields = ['title', 'content', 'category', 'author', 'date_created'];
+            foreach ($requiredFields as $field) {
+                if (empty($_POST[$field])) {
+                    throw new Exception("Field '$field' is required");
+                }
+            }
 
-    // Validate position value
-    $valid_positions = ['news_list', 'sub_headline', 'headline'];
-    if (!in_array($position, $valid_positions)) {
-        throw new Exception('Posisi artikel tidak valid');
-    }
+            // Handle image upload
+            $imageUrl = handleImageUpload();
 
-    // Generate unique slug
-    $slug = generateUniqueSlug($pdo, $category, $baseSlug);
+            // Prepare article data
+            $articleData = [
+                'category_id' => $_POST['category'],
+                'title' => $_POST['title'],
+                'slug' => generateSlug($_POST['title']),
+                'date_published' => $_POST['date_created'],
+                'content' => $_POST['content'],
+                'image_url' => $imageUrl,
+                'author_name' => $_POST['author'],
+                'description' => substr(strip_tags($_POST['content']), 0, 200) . '...'
+            ];
 
-    $date_published = sanitizeString($_POST['date_created']);
-    $content = $_POST['content']; // Keep JSON as is
-    $author_name = sanitizeString($_POST['author']);
+            // Insert article
+            $sql = "INSERT INTO articles 
+                    (category_id, title, slug, date_published, content, image_url, description, author_name) 
+                    VALUES 
+                    (:category_id, :title, :slug, :date_published, :content, :image_url, :description, :author_name)";
 
-    // Menangani input figcaption
-    $figcaption = '';
-    if (isset($_POST['figcaption'])) {
-        $figcaption = sanitizeString($_POST['figcaption']);
-        // Validasi panjang figcaption
-        if (strlen($figcaption) > 255) {
-            throw new Exception('Keterangan gambar terlalu panjang. Maksimal 255 karakter.');
-        }
-    }
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($articleData);
 
-    // Validate JSON content
-    $decoded_content = json_decode($content, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Exception('Format konten tidak valid');
-    }
+            echo json_encode([
+                'success' => true,
+                'message' => 'Article saved successfully',
+                'articleId' => $pdo->lastInsertId()
+            ]);
+            break;
 
-    // Handle image upload
-    $image_url = '';
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $target_dir = "../uploads/";
-        if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
+        case 'getCategories':
+            $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
+            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode([
+                'success' => true,
+                'categories' => $categories
+            ]);
+            break;
 
-        $file_info = pathinfo($_FILES["image"]["name"]);
-        $file_extension = strtolower($file_info['extension']);
-        $new_filename = uniqid() . '.' . $file_extension;
-        $target_file = $target_dir . $new_filename;
+        case 'getArticles':
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+            $offset = ($page - 1) * $limit;
 
-        // Validate image
-        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
-        if (!in_array($file_extension, $allowed_types)) {
-            throw new Exception('Tipe file tidak valid. Hanya JPG, JPEG, PNG & GIF yang diperbolehkan.');
-        }
+            // Get total count
+            $total = $pdo->query("SELECT COUNT(*) FROM articles")->fetchColumn();
 
-        if ($_FILES["image"]["size"] > 2000000) {
-            throw new Exception('Ukuran file terlalu besar. Maksimal 2MB.');
-        }
+            // Get articles with category information
+            $sql = "SELECT a.*, c.name as category_name 
+                    FROM articles a 
+                    JOIN categories c ON a.category_id = c.id 
+                    ORDER BY a.date_published DESC 
+                    LIMIT :limit OFFSET :offset";
 
-        if (!move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-            throw new Exception('Gagal mengunggah gambar.');
-        }
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
 
-        $image_url = 'uploads/' . $new_filename;
-    } else {
-        throw new Exception('Gambar harus diunggah.');
-    }
+            $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Generate description from content
-    $plain_text = '';
-    foreach ($decoded_content['ops'] as $op) {
-        if (isset($op['insert']) && is_string($op['insert'])) {
-            $plain_text .= $op['insert'];
-        }
-    }
-    $description = substr(trim($plain_text), 0, 200) . '...';
+            echo json_encode([
+                'success' => true,
+                'articles' => $articles,
+                'total' => $total,
+                'pages' => ceil($total / $limit)
+            ]);
+            break;
 
-    // Start transaction
-    $pdo->beginTransaction();
+        case 'deleteArticle':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception('Invalid request method');
+            }
 
-    try {
-        // Prepare article data
-        $article_data = json_encode([
-            'title' => $title,
-            'slug' => $slug,
-            'date_published' => $date_published,
-            'content' => $content,
-            'image_url' => $image_url,
-            'figcaption' => $figcaption,
-            'description' => $description,
-            'author_name' => $author_name
-        ]);
+            $articleId = $_POST['article_id'] ?? null;
+            if (!$articleId) {
+                throw new Exception('Article ID is required');
+            }
 
-        // Insert article
-        $sql = "INSERT INTO $category (title, slug, date_published, content, image_url, description, author_name, figcaption) 
-                VALUES (:title, :slug, :date_published, :content, :image_url, :description, :author_name, :figcaption)";
+            // Get image URL before deletion
+            $stmt = $pdo->prepare("SELECT image_url FROM articles WHERE id = ?");
+            $stmt->execute([$articleId]);
+            $article = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $stmt = $pdo->prepare($sql);
-        $success = $stmt->execute([
-            ':title' => $title,
-            ':slug' => $slug,
-            ':date_published' => $date_published,
-            ':content' => $article_data,
-            ':image_url' => $image_url,
-            ':description' => $description,
-            ':author_name' => $author_name,
-            ':figcaption' => $figcaption
-        ]);
+            // Delete article
+            $stmt = $pdo->prepare("DELETE FROM articles WHERE id = ?");
+            $stmt->execute([$articleId]);
 
-        if (!$success) {
-            throw new Exception('Gagal menyimpan artikel ke database');
-        }
+            // Delete associated image
+            if ($article['image_url']) {
+                $imagePath = "../uploads/" . $article['image_url'];
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
 
-        // Get the new article's ID
-        $article_id = $pdo->lastInsertId();
+            echo json_encode([
+                'success' => true,
+                'message' => 'Article deleted successfully'
+            ]);
+            break;
 
-        // Get category_id from categories table
-        $stmt = $pdo->prepare("SELECT id FROM categories WHERE TABLE_NAME = ?");
-        $stmt->execute([$category]);
-        $category_id = $stmt->fetchColumn();
-
-        if (!$category_id) {
-            throw new Exception('Kategori tidak ditemukan');
-        }
-
-        // Insert position data
-        $stmt = $pdo->prepare("INSERT INTO article_positions (category_id, article_id, position) VALUES (?, ?, ?)");
-        $success = $stmt->execute([$category_id, $article_id, $position]);
-
-        if (!$success) {
-            throw new Exception('Gagal menyimpan posisi artikel');
-        }
-
-        // Commit transaction
-        $pdo->commit();
-
-        echo json_encode([
-            'success' => true,
-            'message' => 'Artikel berhasil dipublikasikan.'
-        ]);
-    } catch (Exception $e) {
-        // Rollback transaction on error
-        $pdo->rollBack();
-        throw $e;
+        default:
+            throw new Exception('Invalid action specified');
     }
 } catch (Exception $e) {
-    handleError($e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }
