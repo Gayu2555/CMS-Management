@@ -1,3 +1,6 @@
+<?php
+require 'backend/auth.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,6 +13,7 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </head>
+
 
 <body class="bg-gray-50 min-h-screen">
     <!-- Sidebar -->
