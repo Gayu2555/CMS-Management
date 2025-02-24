@@ -19,21 +19,21 @@
             <p class="text-sm text-gray-400 mt-1">Sistem Manajemen Konten</p>
         </div>
         <nav class="mt-6 space-y-2 px-3">
-            <a href="index.php" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
+            <a href="cms.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
                 <i class="fas fa-pen-to-square mr-3 text-gray-400 group-hover:text-blue-400"></i>
                 Tulis artikel
             </a>
-            <a href="#" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                <i class="fas fa-newspaper mr-3 text-gray-400 group-hover:text-blue-400"></i>
+            <a href="all_article.php" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
+                <i class="fas fa-newspaper mr-3 text-blue-400 group-hover:text-blue-400"></i>
                 Semua Artikel
             </a>
             <a href="category.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
                 <i class="fas fa-folder mr-3 text-blue-400"></i>
                 Kategori
             </a>
-            <a href="all_article.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                <i class="fa-regular fa-list mr-3 text-gray-400 group-hover:text-blue-400"></i>
-                Daftar Artikel
+            <a href="list_reporter.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
+                <i class="fa-solid fa-binoculars  text-blue-400 group-hover:text-blue-800"></i>
+                From Reporter Lapangan
             </a>
         </nav>
     </div>

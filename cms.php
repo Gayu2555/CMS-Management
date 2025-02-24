@@ -23,7 +23,7 @@ require 'backend/auth.php';
             <p class="text-sm text-gray-400 mt-1">Sistem Manajemen Konten</p>
         </div>
         <nav class="mt-6 space-y-2 px-3">
-            <a href="#" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
+            <a href="cms.php" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
                 <i class="fas fa-pen-to-square mr-3 text-blue-400 group-hover:text-blue-400"></i>
                 Tulis Berita
             </a>
