@@ -43,7 +43,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
                 Semua Artikel
             </a>
             <a href="category.php" class="flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-                <i class="fas fa-folder mr-3 text-gray-400"></i>
+                <i class="fas fa-folder mr-3 text-gray-400  group-hover:text-blue-400"></i>
                 Kategori
             </a>
             <a href="list_reporter.php" class="flex items-center px-3 py-3 rounded-lg text-white bg-gray-800 border-l-4 border-blue-500 group">
