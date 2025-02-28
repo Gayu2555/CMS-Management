@@ -13,6 +13,8 @@ require 'backend/auth.php';
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 </head>
 
 
@@ -202,6 +204,7 @@ require 'backend/auth.php';
                         <input type="text" name="figcaption" id="figcaption" placeholder="Keterangan gambar"
                             class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     </div>
+
                     <!-- Action Buttons -->
                     <div class="flex justify-end gap-3">
                         <button type="button" id="preview-button" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
@@ -215,6 +218,41 @@ require 'backend/auth.php';
             </form>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('image');
+            const imagePreview = document.getElementById('imagePreview');
+
+            imageInput.addEventListener('change', function() {
+                const file = this.files[0];
+
+                if (file) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        // Hapus preview sebelumnya jika ada
+                        imagePreview.innerHTML = '';
+
+                        // Buat elemen gambar baru
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = 'Preview';
+                        img.className = 'max-w-xs mx-auto rounded-lg shadow-md';
+
+                        // Tampilkan preview
+                        imagePreview.appendChild(img);
+                        imagePreview.classList.remove('hidden');
+                    };
+
+                    reader.readAsDataURL(file);
+                } else {
+                    // Jika tidak ada file yang dipilih, sembunyikan preview
+                    imagePreview.classList.add('hidden');
+                    imagePreview.innerHTML = '';
+                }
+            });
+        });
+    </script>
 
     <!-- Modals -->
     <!-- Read Mode Modal -->
@@ -255,39 +293,26 @@ require 'backend/auth.php';
     </div>
     <script>
         // Load categories on page load
-        $(document).ready(function() {
-            loadCategories();
-        });
-
-        function loadCategories() {
-            $.ajax({
-                url: 'backend/process.php',
-                type: 'GET',
-                data: {
-                    action: 'getCategories'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        var select = $('#category');
-                        select.empty().append('<option value="">Select Category</option>');
-                        response.categories.forEach(function(category) {
-                            select.append(`<option value="${category.id}">${category.name}</option>`);
-                        });
-                    }
-                },
-                error: function() {
-                    alert('Error loading categories');
-                }
-            });
-        }
-
+        // Handle form submission
         // Handle form submission
         $('#articleForm').on('submit', function(e) {
             e.preventDefault();
 
+            // Pastikan konten editor disimpan ke hidden field
+            $('#hiddenContent').val(quill.root.innerHTML);
+
+            // Validasi form
+            const requiredFields = ["title", "author", "category", "date_created", "position"];
+            const isEmpty = requiredFields.some(id => !document.getElementById(id)?.value);
+
+            if (isEmpty) {
+                alert("Harap isi semua kolom wajib");
+                return false;
+            }
+
+            // Buat FormData dan kirim ke server
             var formData = new FormData(this);
             formData.append('action', 'saveArticle');
-            formData.append('content', $('#hiddenContent').val());
 
             $.ajax({
                 url: 'backend/process.php',
@@ -295,104 +320,24 @@ require 'backend/auth.php';
                 data: formData,
                 processData: false,
                 contentType: false,
+                dataType: 'json',
                 success: function(response) {
-                    if (response.success) {
-                        alert('Article saved successfully!');
+                    console.log('Respons:', response); // Cek respons aktual
+                    if (response && response.success) {
+                        alert('Artikel berhasil disimpan!');
                         window.location.href = 'all_article.php';
                     } else {
-                        alert(response.message || 'Error saving article');
+                        alert(response.message || 'Error menyimpan artikel');
                     }
                 },
-                error: function(xhr) {
-                    var error = xhr.responseJSON ? xhr.responseJSON.message : 'Error saving article';
-                    alert(error);
+                error: function(xhr, status, error) {
+                    console.error('Error AJAX:', status, error);
+                    console.log('Teks Respons:', xhr.responseText);
+                    alert('Error saat menyimpan artikel: ' + error);
                 }
             });
         });
-
-        // Load articles with pagination
-        function loadArticles(page = 1) {
-            $.ajax({
-                url: 'backend/process.php',
-                type: 'GET',
-                data: {
-                    action: 'getArticles',
-                    page: page
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Render articles
-                        var articlesHtml = '';
-                        response.articles.forEach(function(article) {
-                            articlesHtml += `
-                        <div class="article-item">
-                            <h3>${escapeHtml(article.title)}</h3>
-                            <p>Category: ${escapeHtml(article.category_name)}</p>
-                            <p>Author: ${escapeHtml(article.author_name)}</p>
-                            <p>Published: ${new Date(article.date_published).toLocaleDateString()}</p>
-                            <button onclick="deleteArticle(${article.id})" class="delete-btn">Delete</button>
-                        </div>
-                    `;
-                        });
-                        $('#articles-container').html(articlesHtml);
-
-                        // Render pagination
-                        renderPagination(response.pages, page);
-                    }
-                },
-                error: function() {
-                    alert('Error loading articles');
-                }
-            });
-        }
-
-        // Delete article
-        function deleteArticle(articleId) {
-            if (!confirm('Are you sure you want to delete this article?')) {
-                return;
-            }
-
-            $.ajax({
-                url: 'backend/process.php',
-                type: 'POST',
-                data: {
-                    action: 'deleteArticle',
-                    article_id: articleId
-                },
-                success: function(response) {
-                    if (response.success) {
-                        alert('Article deleted successfully!');
-                        loadArticles(1); // Reload first page
-                    }
-                },
-                error: function() {
-                    alert('Error deleting article');
-                }
-            });
-        }
-
-        // Helper function to escape HTML
-        function escapeHtml(str) {
-            var div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // Render pagination controls
-        function renderPagination(totalPages, currentPage) {
-            var paginationHtml = '';
-            for (var i = 1; i <= totalPages; i++) {
-                paginationHtml += `
-            <button 
-                class="page-btn ${i === currentPage ? 'active' : ''}"
-                onclick="loadArticles(${i})"
-            >${i}</button>
-        `;
-            }
-            $('#pagination').html(paginationHtml);
-        }
     </script>
-
 
     <script src="js/cms.js"></script>
 </body>
