@@ -63,6 +63,9 @@ try {
 
     $pdo = connectDB();
 
+    // Start transaction
+    $pdo->beginTransaction();
+
     // Sanitize input data
     $category = (int) $_POST['category'];
     $title = sanitizeInput($_POST['title']);
@@ -92,12 +95,45 @@ try {
     $stmt->bindParam(':author_name', $author_name, PDO::PARAM_STR);
     $stmt->execute();
 
+    $articleId = $pdo->lastInsertId();
+
+    // Check if position is set and insert into article_positions
+    if (isset($_POST['position']) && !empty($_POST['position'])) {
+        $position = sanitizeInput($_POST['position']);
+
+        // Validate position value against enum options
+        $validPositions = ['news_list', 'sub_headline', 'headline'];
+        if (!in_array($position, $validPositions)) {
+            throw new Exception("Invalid position value");
+        }
+
+        // Insert into article_positions
+        $sql = "INSERT INTO article_positions 
+                (category_id, article_id, position) 
+                VALUES 
+                (:category_id, :article_id, :position)";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':category_id', $category, PDO::PARAM_INT);
+        $stmt->bindParam(':article_id', $articleId, PDO::PARAM_INT);
+        $stmt->bindParam(':position', $position, PDO::PARAM_STR);
+        $stmt->execute();
+    }
+
+    // Commit the transaction
+    $pdo->commit();
+
     echo json_encode([
         'success' => true,
         'message' => 'Article saved successfully',
-        'articleId' => $pdo->lastInsertId()
+        'articleId' => $articleId
     ]);
 } catch (Exception $e) {
+    // Rollback the transaction if an error occurs
+    if (isset($pdo)) {
+        $pdo->rollBack();
+    }
+
     http_response_code(500);
     echo json_encode([
         'success' => false,

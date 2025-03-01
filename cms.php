@@ -15,7 +15,6 @@ require 'backend/auth.php';
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com;">
 
 </head>
 
@@ -186,7 +185,7 @@ require 'backend/auth.php';
                     </div>
 
                     <!-- Editor -->
-                    <div id="editor" class="h-[600px] border rounded-lg mb-6"></div>
+                    <div id="editor" class="min-h-[600px] max-h-[800px] overflow-auto border rounded-lg mb-6 p-4"></div>
                     <input type="hidden" name="content" id="hiddenContent">
                     <!-- Image Upload -->
                     <div class="space-y-4">
@@ -294,9 +293,6 @@ require 'backend/auth.php';
         </div>
     </div>
     <script>
-        // Load categories on page load
-        // Handle form submission
-        // Handle form submission
         $('#articleForm').on('submit', function(e) {
             e.preventDefault();
 
@@ -305,16 +301,41 @@ require 'backend/auth.php';
 
             // Validasi form
             const requiredFields = ["title", "author", "category", "date_created", "position"];
-            const isEmpty = requiredFields.some(id => !document.getElementById(id)?.value);
+            let isEmpty = false;
+            let missingFields = [];
+
+            requiredFields.forEach(id => {
+                const element = document.getElementById(id);
+                if (!element || !element.value.trim()) {
+                    isEmpty = true;
+                    missingFields.push(id);
+                }
+            });
 
             if (isEmpty) {
-                alert("Harap isi semua kolom wajib");
+                alert("Harap isi semua kolom wajib: " + missingFields.join(", "));
+                return false;
+            }
+
+            // Validasi khusus untuk position
+            const position = document.getElementById('position').value;
+            if (!position || !['news_list', 'sub_headline', 'headline'].includes(position)) {
+                alert("Pilih posisi artikel yang valid");
                 return false;
             }
 
             // Buat FormData dan kirim ke server
             var formData = new FormData(this);
             formData.append('action', 'saveArticle');
+            formData.append('content', $('#hiddenContent').val()); // Pastikan konten terkirim
+
+            // Log data yang akan dikirim (untuk debugging)
+            console.log("Form data yang dikirim:", {
+                title: formData.get('title'),
+                category: formData.get('category'),
+                position: formData.get('position'),
+                // tidak menampilkan konten karena bisa sangat panjang
+            });
 
             $.ajax({
                 url: 'backend/process.php',
@@ -324,7 +345,7 @@ require 'backend/auth.php';
                 contentType: false,
                 dataType: 'json',
                 success: function(response) {
-                    console.log('Respons:', response); // Cek respons aktual
+                    console.log('Respons:', response);
                     if (response && response.success) {
                         alert('Artikel berhasil disimpan!');
                         window.location.href = 'all_article.php';
@@ -335,7 +356,12 @@ require 'backend/auth.php';
                 error: function(xhr, status, error) {
                     console.error('Error AJAX:', status, error);
                     console.log('Teks Respons:', xhr.responseText);
-                    alert('Error saat menyimpan artikel: ' + error);
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        alert('Error saat menyimpan artikel: ' + (errorResponse.message || error));
+                    } catch (e) {
+                        alert('Error saat menyimpan artikel: ' + error);
+                    }
                 }
             });
         });
