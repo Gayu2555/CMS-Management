@@ -1,7 +1,8 @@
+var quill;
+
 document.addEventListener("DOMContentLoaded", () => {
   // Inisialisasi Quill terlebih dahulu
   const editorContainer = document.getElementById("editor");
-  let quill;
 
   if (editorContainer) {
     // Konfigurasi toolbar Quill

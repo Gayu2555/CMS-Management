@@ -1,16 +1,21 @@
-# ignore backend file
-backend /
-
-# ignore .env files 
+# Ignore .env files
 .env
 
-#Ignore File Contih
+# Ignore example files
 contoh.html
 
+# Ignore dependencies
 node_modules/
 
+# Ignore project configuration files
 .gitignore
 package.json
 tailwind.config.js
+
+# Ignore frontend source folder
 src/
+
+# Ignore uploads folder inside backend
+backend/uploads/
 backend/
+/backend
